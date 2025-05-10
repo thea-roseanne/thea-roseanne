@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Live Weather</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fira Code', monospace;
+      background: transparent;
+      color: #00ffee;
+      font-size: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">Detecting location...</div>
+  <script>
+    async function getWeather() {
+      try {
+        const locRes = await fetch('https://ip-api.com/json');
+        const locData = await locRes.json();
+        const lat = locData.lat;
+        const lon = locData.lon;
+        const city = locData.city;
+        const country = locData.country;
+
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+        const weatherData = await weatherRes.json();
+        const temp = weatherData.current_weather.temperature;
+        const icon = weatherData.current_weather.weathercode < 3 ? "☀️" :
+                     weatherData.current_weather.weathercode < 6 ? "☁️" :
+                     weatherData.current_weather.weathercode < 7 ? "🌧️" : "❄️";
+
+        document.getElementById('info').innerText =
+          `${icon} ${city}, ${country} — ${temp}°C`;
+      } catch (e) {
+        document.getElementById('info').innerText = "⚠️ Unable to fetch weather.";
+      }
+    }
+    getWeather();
+  </script>
+</body>
+</html>
